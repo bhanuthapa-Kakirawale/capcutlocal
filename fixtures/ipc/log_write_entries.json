@@ -1,0 +1,11 @@
+[
+  {
+    "level": "info",
+    "message": "Project opened"
+  },
+  {
+    "level": "error",
+    "message": "Uncaught error: boom",
+    "context": "Error: boom\n    at App (App.tsx:12:5)"
+  }
+]

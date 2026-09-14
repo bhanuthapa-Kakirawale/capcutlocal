@@ -1,0 +1,8 @@
+{
+  "code": "INVALID_ARGUMENT",
+  "message": "log_write accepts at most 100 entries per call (got 101)",
+  "retryable": false,
+  "details": {
+    "maxEntries": 100
+  }
+}

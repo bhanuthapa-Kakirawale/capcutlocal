@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Main window permissions. Every app command is granted explicitly.",
+  "windows": ["main"],
+  "permissions": ["core:default", "allow-app-info", "allow-log-write"]
+}

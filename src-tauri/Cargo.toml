@@ -1,0 +1,42 @@
+[package]
+name = "kriti"
+version = "0.1.0"
+description = "Kriti desktop video editor: application core"
+authors = ["Kriti contributors"]
+edition = "2024"
+rust-version = "1.85"
+publish = false
+
+[lib]
+# The `_lib` suffix keeps the library name distinct from the binary name, which would
+# otherwise collide on Windows (https://github.com/rust-lang/cargo/issues/8519).
+name = "kriti_lib"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tracing = "0.1"
+tracing-appender = "0.2"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+# Recoverable failures must be typed errors (docs/ARCHITECTURE.md §7). Tests are exempt via clippy.toml.
+unwrap_used = "deny"
+expect_used = "deny"
+
+[profile.release]
+codegen-units = 1
+# Thin rather than fat LTO: fat LTO's final link ran an 8 GB development machine out of
+# memory. Whether distribution builds need fat LTO is measured in P6 (ADR-016).
+lto = "thin"
+opt-level = 3
+strip = true
+# `panic` stays at the default (unwind) so worker panics can be caught at job boundaries.

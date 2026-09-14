@@ -1,0 +1,3 @@
+# A panic is exactly how a failing test should report, so tests may unwrap.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true

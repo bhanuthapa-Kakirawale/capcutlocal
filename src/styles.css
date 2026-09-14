@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-surface-0: #0e1014;
+  --color-surface-1: #171a20;
+  --color-edge: #2a2f38;
+  --color-fg: #e7e9ee;
+  --color-fg-muted: #9aa2b1;
+  --color-danger: #ff6b6b;
+
+  /* Devanagari fallback keeps Hindi UI text legible on systems without it in Segoe UI. */
+  --font-sans:
+    'Segoe UI Variable', 'Segoe UI', 'Noto Sans', 'Noto Sans Devanagari', system-ui, sans-serif;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    background-color: var(--color-surface-0);
+    color: var(--color-fg);
+    color-scheme: dark;
+  }
+}

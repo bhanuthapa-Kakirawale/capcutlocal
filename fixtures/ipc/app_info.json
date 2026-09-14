@@ -1,0 +1,9 @@
+{
+  "name": "Kriti",
+  "version": "0.1.0",
+  "tauriVersion": "2.11.0",
+  "os": "windows",
+  "arch": "x86_64",
+  "debugBuild": false,
+  "logDir": "C:\\Users\\example\\AppData\\Local\\com.kriti.studio\\logs"
+}

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-ffmpeg-diagnostics"
+description = "Enables the ffmpeg_diagnostics command without any pre-configured scope."
+commands.allow = ["ffmpeg_diagnostics"]
+
+[[permission]]
+identifier = "deny-ffmpeg-diagnostics"
+description = "Denies the ffmpeg_diagnostics command without any pre-configured scope."
+commands.deny = ["ffmpeg_diagnostics"]

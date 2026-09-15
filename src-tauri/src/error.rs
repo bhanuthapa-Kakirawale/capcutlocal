@@ -21,6 +21,12 @@ pub enum ErrorCode {
     DiskFull,
     /// The OS denied access to the file (locked, or an unwritable permission).
     PermissionDenied,
+    /// No usable FFmpeg/ffprobe was found, or it is older than the minimum supported version.
+    FfmpegUnavailable,
+    /// An FFmpeg/ffprobe child process failed (non-zero exit, crash, or stalled).
+    FfmpegFailed,
+    /// The job was cancelled before it finished.
+    Cancelled,
 }
 
 /// Serialized as `{ code, message, retryable, details? }`.

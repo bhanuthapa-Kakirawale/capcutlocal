@@ -4,6 +4,10 @@ fn main() {
     let manifest = tauri_build::AppManifest::new().commands(&[
         "app_info",
         "log_write",
+        "media_import",
+        "media_generate_poster",
+        "job_cancel",
+        "ffmpeg_diagnostics",
         "project_save",
         "project_open",
         "project_autosave",

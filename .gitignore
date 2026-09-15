@@ -13,6 +13,8 @@ src-tauri/gen/schemas/
 coverage/
 playwright-report/
 test-results/
+# scripts/gen-test-media.ps1's default output — generated, never committed (docs/MEDIA-PIPELINE.md §8).
+.media-fixtures/
 
 # Logs
 *.log

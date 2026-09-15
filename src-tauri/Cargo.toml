@@ -16,15 +16,30 @@ name = "kriti_lib"
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = [] }
+tauri = { version = "2", features = ["protocol-asset"] }
 tauri-plugin-dialog = "2"
+blake3 = "1"
+rusqlite = { version = "0.32", features = ["bundled"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
-tokio = { version = "1", features = ["fs", "io-util", "macros", "rt"] }
+tokio = { version = "1", features = ["fs", "io-util", "macros", "process", "rt", "sync", "time"] }
+tokio-util = "0.7"
 tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1", features = ["v4"] }
+
+[features]
+# Tests that spawn real ffmpeg/ffprobe and need it installed (ADR-014). `cargo test` on a
+# machine without FFmpeg still runs everything else.
+media-tests = []
+
+[target.'cfg(windows)'.dependencies]
+# Safe wrapper around Windows Job Objects: an FFmpeg child is assigned to a job with
+# KILL_ON_JOB_CLOSE, so a crashed or killed app never leaves an orphaned encoder running
+# (docs/MEDIA-PIPELINE.md §1.2). Keeps `unsafe_code = "deny"` (below) honest.
+win32job = "2"
 
 [lints.rust]
 unsafe_code = "deny"

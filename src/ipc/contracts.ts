@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { FingerprintSchema } from '../domain/model/asset';
+import { MediaInfoSchema } from '../domain/model/media';
 
 /*
  * Zod mirrors of the Rust IPC types in src-tauri/src. Every response is parsed with these
@@ -14,6 +16,9 @@ export const ErrorCodeSchema = z.enum([
   'INVALID_PROJECT_FILE',
   'DISK_FULL',
   'PERMISSION_DENIED',
+  'FFMPEG_UNAVAILABLE',
+  'FFMPEG_FAILED',
+  'CANCELLED',
 ]);
 export type ErrorCode = z.infer<typeof ErrorCodeSchema>;
 
@@ -68,3 +73,37 @@ export const RecoveryInfoSchema = z.strictObject({
   autosavePath: z.string().min(1),
 });
 export type RecoveryInfo = z.infer<typeof RecoveryInfoSchema>;
+
+/** Mirrors `MediaKind` in src-tauri/src/ffmpeg/probe.rs. */
+export const MediaKindSchema = z.enum(['video', 'audio', 'image']);
+export type MediaKind = z.infer<typeof MediaKindSchema>;
+
+/** One `media_import` result. Mirrors `ImportOutcome` in src-tauri/src/commands/media.rs.
+ * The `imported` branch reuses the domain's own Fingerprint/MediaInfo schemas: Rust
+ * produces exactly that shape, so this is the single definition, not a second one to
+ * keep in sync by hand. */
+export const ImportOutcomeSchema = z.discriminatedUnion('status', [
+  z.strictObject({
+    status: z.literal('imported'),
+    path: z.string().min(1),
+    kind: MediaKindSchema,
+    suggestedName: z.string().min(1),
+    fingerprint: FingerprintSchema,
+    info: MediaInfoSchema,
+  }),
+  z.strictObject({
+    status: z.literal('failed'),
+    path: z.string().min(1),
+    error: AppErrorSchema,
+  }),
+]);
+export type ImportOutcome = z.infer<typeof ImportOutcomeSchema>;
+
+/** Response of `ffmpeg_diagnostics`. Mirrors `FfmpegDiagnostics` in src-tauri/src/commands/media.rs. */
+export const FfmpegDiagnosticsSchema = z.strictObject({
+  available: z.boolean(),
+  ffmpegVersion: z.string().min(1).nullable(),
+  ffprobeVersion: z.string().min(1).nullable(),
+  error: z.string().optional(),
+});
+export type FfmpegDiagnostics = z.infer<typeof FfmpegDiagnosticsSchema>;

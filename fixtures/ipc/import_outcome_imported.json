@@ -1,0 +1,62 @@
+{
+  "fingerprint": {
+    "modifiedMs": 1757800000000,
+    "sampleHash": "3fa2b1c0",
+    "sizeBytes": 1000000
+  },
+  "info": {
+    "audio": [
+      {
+        "channelLayout": "stereo",
+        "channels": 2,
+        "codec": "aac",
+        "durationFlicks": 705600000,
+        "language": null,
+        "sampleRate": 48000,
+        "startOffsetFlicks": 0,
+        "streamIndex": 1
+      }
+    ],
+    "bitRate": 5000000,
+    "container": "mov,mp4,m4a,3gp,3g2,mj2",
+    "durationFlicks": 705600000,
+    "image": null,
+    "probedWith": "ffprobe-test",
+    "sizeBytes": 1000000,
+    "video": {
+      "avgFrameRate": {
+        "den": 1,
+        "num": 30
+      },
+      "bitDepth": 8,
+      "codec": "h264",
+      "colorPrimaries": "bt709",
+      "colorRange": "tv",
+      "colorSpace": "bt709",
+      "colorTransfer": "bt709",
+      "durationFlicks": 705600000,
+      "frameRate": {
+        "den": 1,
+        "num": 30
+      },
+      "hasAlpha": false,
+      "height": 1080,
+      "isHdr": false,
+      "isVariableFrameRate": false,
+      "pixelFormat": "yuv420p",
+      "profile": "High",
+      "rotation": 0,
+      "sampleAspectRatio": {
+        "den": 1,
+        "num": 1
+      },
+      "startOffsetFlicks": 0,
+      "streamIndex": 0,
+      "width": 1920
+    }
+  },
+  "kind": "video",
+  "path": "C:\\Media\\clip.mp4",
+  "status": "imported",
+  "suggestedName": "clip"
+}

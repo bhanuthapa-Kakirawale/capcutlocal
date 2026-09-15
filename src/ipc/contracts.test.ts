@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import appErrorFixture from '../../fixtures/ipc/app_error.json';
 import appInfoFixture from '../../fixtures/ipc/app_info.json';
+import ffmpegDiagnosticsFixture from '../../fixtures/ipc/ffmpeg_diagnostics.json';
+import importOutcomeFailedFixture from '../../fixtures/ipc/import_outcome_failed.json';
+import importOutcomeImportedFixture from '../../fixtures/ipc/import_outcome_imported.json';
 import logEntriesFixture from '../../fixtures/ipc/log_write_entries.json';
 import openedProjectFixture from '../../fixtures/ipc/opened_project.json';
 import recentProjectFixture from '../../fixtures/ipc/recent_project.json';
@@ -9,6 +12,8 @@ import recoveryInfoFixture from '../../fixtures/ipc/recovery_info.json';
 import {
   AppErrorSchema,
   AppInfoSchema,
+  FfmpegDiagnosticsSchema,
+  ImportOutcomeSchema,
   OpenedProjectSchema,
   RecentProjectSchema,
   RecoveryInfoSchema,
@@ -40,6 +45,18 @@ describe('IPC contract fixtures', () => {
 
   it('recovery_info.json matches RecoveryInfoSchema', () => {
     expect(() => RecoveryInfoSchema.parse(recoveryInfoFixture)).not.toThrow();
+  });
+
+  it('import_outcome_imported.json matches ImportOutcomeSchema', () => {
+    expect(() => ImportOutcomeSchema.parse(importOutcomeImportedFixture)).not.toThrow();
+  });
+
+  it('import_outcome_failed.json matches ImportOutcomeSchema', () => {
+    expect(() => ImportOutcomeSchema.parse(importOutcomeFailedFixture)).not.toThrow();
+  });
+
+  it('ffmpeg_diagnostics.json matches FfmpegDiagnosticsSchema', () => {
+    expect(() => FfmpegDiagnosticsSchema.parse(ffmpegDiagnosticsFixture)).not.toThrow();
   });
 
   it('rejects fields the Rust side does not send', () => {

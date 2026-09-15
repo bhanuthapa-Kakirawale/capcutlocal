@@ -2,10 +2,14 @@ import { z } from 'zod';
 import type { Result } from '../lib/result';
 import {
   AppInfoSchema,
+  FfmpegDiagnosticsSchema,
+  ImportOutcomeSchema,
   OpenedProjectSchema,
   RecentProjectSchema,
   RecoveryInfoSchema,
   type AppInfo,
+  type FfmpegDiagnostics,
+  type ImportOutcome,
   type OpenedProject,
   type RecentProject,
   type RecoveryInfo,
@@ -51,4 +55,28 @@ export function sessionSetActiveProject(
   path: string | null,
 ): Promise<Result<null, IpcError>> {
   return invokeCommand('session_set_active_project', z.null(), { projectId, path });
+}
+
+export function mediaImport(paths: readonly string[]): Promise<Result<ImportOutcome[], IpcError>> {
+  return invokeCommand('media_import', z.array(ImportOutcomeSchema), { paths });
+}
+
+export function mediaGeneratePoster(
+  path: string,
+  fingerprint: string,
+  durationFlicks: number,
+): Promise<Result<string, IpcError>> {
+  return invokeCommand('media_generate_poster', z.string().min(1), {
+    path,
+    fingerprint,
+    durationFlicks,
+  });
+}
+
+export function jobCancel(jobId: string): Promise<Result<boolean, IpcError>> {
+  return invokeCommand('job_cancel', z.boolean(), { jobId });
+}
+
+export function ffmpegDiagnostics(): Promise<Result<FfmpegDiagnostics, IpcError>> {
+  return invokeCommand('ffmpeg_diagnostics', FfmpegDiagnosticsSchema);
 }

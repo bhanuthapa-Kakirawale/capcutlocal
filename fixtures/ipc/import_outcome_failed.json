@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "FFMPEG_FAILED",
+    "message": "ffprobe exited with a non-zero status",
+    "retryable": false
+  },
+  "path": "C:\\Media\\broken.mov",
+  "status": "failed"
+}

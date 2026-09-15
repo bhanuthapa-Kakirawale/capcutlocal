@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-media-generate-poster"
+description = "Enables the media_generate_poster command without any pre-configured scope."
+commands.allow = ["media_generate_poster"]
+
+[[permission]]
+identifier = "deny-media-generate-poster"
+description = "Denies the media_generate_poster command without any pre-configured scope."
+commands.deny = ["media_generate_poster"]

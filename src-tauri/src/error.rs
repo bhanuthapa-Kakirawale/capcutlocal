@@ -11,6 +11,16 @@ pub enum ErrorCode {
     Internal,
     /// The UI sent a request the core cannot accept.
     InvalidArgument,
+    /// The requested file does not exist.
+    NotFound,
+    /// The file exceeds the size this operation accepts.
+    TooLarge,
+    /// The file is not a Kriti project (docs/PROJECT-MODEL.md §5.1's envelope check).
+    InvalidProjectFile,
+    /// The target volume has no free space left.
+    DiskFull,
+    /// The OS denied access to the file (locked, or an unwritable permission).
+    PermissionDenied,
 }
 
 /// Serialized as `{ code, message, retryable, details? }`.
@@ -39,13 +49,30 @@ impl AppError {
         self
     }
 
-    fn new(code: ErrorCode, message: impl Into<String>) -> Self {
+    pub fn retryable(mut self) -> Self {
+        self.retryable = true;
+        self
+    }
+
+    pub fn new(code: ErrorCode, message: impl Into<String>) -> Self {
         Self {
             code,
             message: message.into(),
             retryable: false,
             details: None,
         }
+    }
+
+    /// Classifies an I/O failure into the closed error-code set, preserving the OS message.
+    pub fn from_io_error(context: &str, error: &std::io::Error) -> Self {
+        let (code, retryable) = match error.kind() {
+            std::io::ErrorKind::NotFound => (ErrorCode::NotFound, false),
+            std::io::ErrorKind::PermissionDenied => (ErrorCode::PermissionDenied, true),
+            std::io::ErrorKind::StorageFull => (ErrorCode::DiskFull, true),
+            _ => (ErrorCode::Internal, false),
+        };
+        let built = Self::new(code, format!("{context}: {error}"));
+        if retryable { built.retryable() } else { built }
     }
 }
 

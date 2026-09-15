@@ -24,12 +24,17 @@ describe('App', () => {
     expect(screen.getByText(appInfoFixture.logDir)).toBeInTheDocument();
   });
 
-  it('shows the error reported by the core', async () => {
+  it('shows the error reported by the core, and logs it back to the core', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    const logged: unknown[] = [];
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    // App.tsx fires several independent IPC calls on mount (app_info, session recovery
+    // check, recent projects, session bootstrap); every one of them fails here, each
+    // logged independently, and the logger may batch them into one or several calls.
+    const loggedEntries: unknown[] = [];
     mockIPC((command, args) => {
       if (command === 'log_write') {
-        logged.push(args);
+        const entries = (args as { entries: unknown[] }).entries;
+        loggedEntries.push(...entries);
         return null;
       }
       // The Rust core rejects with a plain serialized AppError object, not an Error instance.
@@ -41,6 +46,15 @@ describe('App', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent(appErrorFixture.message);
     await logger.flush();
-    expect(logged).toHaveLength(1);
+    expect(
+      loggedEntries.some(
+        (entry) =>
+          typeof entry === 'object' &&
+          entry !== null &&
+          'message' in entry &&
+          typeof entry.message === 'string' &&
+          entry.message.includes(appErrorFixture.message),
+      ),
+    ).toBe(true);
   });
 });

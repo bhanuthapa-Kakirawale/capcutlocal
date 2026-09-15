@@ -59,6 +59,38 @@ test('forwards uncaught UI errors into the core log file', async () => {
   expect(readLogs(logDir)).toContain('application started');
 });
 
+test('offers to recover an autosave after the app does not exit cleanly', async () => {
+  const page = await mainPage();
+  const logDir = (await page.getByTestId('log-dir').textContent())?.trim() ?? '';
+
+  // Edit the project, then force an autosave (normally on a 60s timer or window blur;
+  // docs/PROJECT-MODEL.md §6) via a synthetic blur — dispatching it directly, rather than
+  // waiting a minute, keeps the test fast without weakening what it proves.
+  await page.getByLabel('Project name').fill(`Recovery Test ${Date.now().toString()}`);
+  await page.getByLabel('Project name').blur(); // commits the rename (ProjectToolbar's onBlur)
+  // A string, not a typed callback: this file's tsconfig has no DOM lib, so `window`
+  // does not type-check as a callback body even though it runs fine in the page.
+  await page.evaluate("window.dispatchEvent(new Event('blur'))");
+  await expect.poll(() => readLogs(logDir), { timeout: 10_000 }).toContain('ui: autosaved');
+
+  // Kill without a clean exit, so the session lock is left behind for the next launch to find.
+  await browser?.close();
+  app?.kill();
+
+  app = spawn(APP_PATH, [], {
+    env: {
+      ...process.env,
+      WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${CDP_PORT}`,
+    },
+    stdio: 'ignore',
+  });
+  browser = await retry(() => chromium.connectOverCDP(`http://127.0.0.1:${CDP_PORT}`));
+  const reopened = await mainPage();
+
+  await expect(reopened.getByText(/didn't exit cleanly/)).toBeVisible();
+  await expect(reopened.getByRole('button', { name: 'Recover' })).toBeVisible();
+});
+
 async function mainPage(): Promise<Page> {
   const connected = browser;
   if (!connected) throw new Error('Not connected to the app');

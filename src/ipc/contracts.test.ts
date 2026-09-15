@@ -3,7 +3,17 @@ import { z } from 'zod';
 import appErrorFixture from '../../fixtures/ipc/app_error.json';
 import appInfoFixture from '../../fixtures/ipc/app_info.json';
 import logEntriesFixture from '../../fixtures/ipc/log_write_entries.json';
-import { AppErrorSchema, AppInfoSchema, UiLogEntrySchema } from './contracts';
+import openedProjectFixture from '../../fixtures/ipc/opened_project.json';
+import recentProjectFixture from '../../fixtures/ipc/recent_project.json';
+import recoveryInfoFixture from '../../fixtures/ipc/recovery_info.json';
+import {
+  AppErrorSchema,
+  AppInfoSchema,
+  OpenedProjectSchema,
+  RecentProjectSchema,
+  RecoveryInfoSchema,
+  UiLogEntrySchema,
+} from './contracts';
 
 // The same fixture files are checked by the Rust test suite (src-tauri/src/test_support.rs),
 // so these tests fail as soon as the TS and Rust shapes drift apart (ADR-008).
@@ -18,6 +28,18 @@ describe('IPC contract fixtures', () => {
 
   it('log_write_entries.json matches UiLogEntrySchema', () => {
     expect(() => z.array(UiLogEntrySchema).parse(logEntriesFixture)).not.toThrow();
+  });
+
+  it('opened_project.json matches OpenedProjectSchema', () => {
+    expect(() => OpenedProjectSchema.parse(openedProjectFixture)).not.toThrow();
+  });
+
+  it('recent_project.json matches RecentProjectSchema', () => {
+    expect(() => RecentProjectSchema.parse(recentProjectFixture)).not.toThrow();
+  });
+
+  it('recovery_info.json matches RecoveryInfoSchema', () => {
+    expect(() => RecoveryInfoSchema.parse(recoveryInfoFixture)).not.toThrow();
   });
 
   it('rejects fields the Rust side does not send', () => {

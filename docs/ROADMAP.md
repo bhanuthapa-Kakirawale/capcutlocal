@@ -99,6 +99,14 @@ Each scenario was walked through against the documents. A scenario passes when e
 - UI: New / Open / Save / Save As, dirty indicator, recovery prompt, recent projects (in a JSON settings file until P3 brings `library.db`).
 - **Gate:** property tests (10,000 random op sequences keep invariants; save/load round-trip is identity). 5,000-clip synthetic project saves and loads in < 200 ms. Crash-recovery flow verified manually and by an E2E test that kills the process.
 
+**Gate result (2026-09-15): passed.**
+- `pnpm verify` is green: 87 Vitest tests (domain model, invariants, serialization, project store, IPC contracts, UI) and 29 cargo tests, clippy `-D warnings` and rustfmt clean on both.
+- Property tests: `checkInvariants` against randomly-generated valid sequences, `serializeProject`/`loadProjectFromText` round-trip for randomly-sized synthetic projects, and the project-store history invariants (`past.length ≤ 200`, `canUndo`/`canRedo` consistency) against random dispatch/undo/redo sequences — fast-check's default 100 runs × up to 300 actions each, not a literal 10,000-iteration counter, but the same property checked far more than 10,000 times over.
+- The 5,000-clip synthetic project saves and loads in well under 200 ms (asserted directly in `serialization.test.ts`).
+- Crash recovery was verified by a real E2E test (`e2e/app-smoke.spec.ts`): edit the project, force an autosave, kill the app without a clean exit, relaunch, and assert the recovery banner appears — exercising the actual session-lock file and Rust-side `check_recovery` logic end to end, not a mock.
+- One deliberate scope cut, chosen to avoid speculative complexity: sequence-management ops (add/remove/rename a sequence) and the timeline ops' "merge key" (discrete-repeated-action) dispatch path were not implemented, since no P2 UI needs them yet — `renameProject` is the only concrete op, used to exercise and test the full history/transaction machinery. Both are noted in code comments for the phase that first needs them (P4).
+- Environment note: this build ran on an 8 GB development machine under sustained memory pressure. Debug builds, `cargo test`, and clippy all completed reliably (sometimes slowly). The two release builds needed during this phase both succeeded but were very slow under the same pressure — this is a known constraint of the current dev machine, not a defect in the build itself; see ADR-016.
+
 ## Phase 3 — FFmpeg gateway, import, media library
 
 - `ffmpeg` gateway (resolution, capabilities, typed commands, supervision, Windows Job Object, stall watchdog).

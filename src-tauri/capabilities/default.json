@@ -3,5 +3,17 @@
   "identifier": "default",
   "description": "Main window permissions. Every app command is granted explicitly.",
   "windows": ["main"],
-  "permissions": ["core:default", "allow-app-info", "allow-log-write"]
+  "permissions": [
+    "core:default",
+    "allow-app-info",
+    "allow-log-write",
+    "allow-project-save",
+    "allow-project-open",
+    "allow-project-autosave",
+    "allow-recent-projects-list",
+    "allow-session-check-recovery",
+    "allow-session-set-active-project",
+    "dialog:allow-open",
+    "dialog:allow-save"
+  ]
 }

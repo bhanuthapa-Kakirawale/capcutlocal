@@ -21,6 +21,12 @@ export default defineConfig([
     },
     rules: {
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      // A leading underscore marks a parameter as intentionally unused (e.g. an EditOp's
+      // unused `ctx`, kept for signature compatibility with other ops of the same shape).
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
   {

@@ -196,6 +196,8 @@ tx.commit();                // pushes a single history entry (the pre-drag snaps
 
 Only one transaction can be open at a time. Starting a new one commits any open transaction first.
 
+Because dirty tracking and the "skip a no-op edit" optimization are both reference-based (§7.4), they only recognize a no-op when a *single* op call leaves the document unchanged (Immer's `produce` returns the original object in that case). A transaction whose updates net back to the original content across *several* calls — e.g. renaming to "A" then back to the original name — still commits one history entry: each call is a separate `produce`, so the final object is a different reference even though its content is equal. Only `undo` restores the exact stored reference.
+
 Discrete repeated actions on the same target within 500 ms (arrow-key nudges, repeated "+1 frame") merge into the previous entry when the op declares a `mergeKey`.
 
 ### 7.3 What is and isn't undoable

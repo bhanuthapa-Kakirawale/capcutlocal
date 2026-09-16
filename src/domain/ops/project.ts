@@ -1,8 +1,8 @@
-import { produce } from 'immer';
 import { z } from 'zod';
 import { err, ok, type Result } from '../../lib/result';
 import type { EditContext } from '../editContext';
 import type { EditError } from '../editError';
+import { produce } from '../immer';
 import type { Project } from '../model';
 
 export const RenameProjectArgsSchema = z.strictObject({ name: z.string().trim().min(1).max(200) });

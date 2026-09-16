@@ -1,10 +1,12 @@
 import { z } from 'zod';
 import { SequenceIdSchema, TrackIdSchema } from '../ids';
 import { RationalSchema, isStandardFrameRate } from '../time';
+import { MarkerSchema } from './marker';
 import { TrackSchema } from './track';
 
 /*
- * Sequences (docs/TIMELINE.md §2). Caption tracks (P8) and markers (P4) join later.
+ * Sequences (docs/TIMELINE.md §2). Schema v2 (P4): adds `markers`. Caption tracks (P8)
+ * join later.
  */
 
 const DimensionSchema = z
@@ -34,6 +36,8 @@ export const SequenceSchema = z.strictObject({
   videoTracks: z.array(TrackIdSchema),
   /** Display order; mixing itself is order-independent. */
   audioTracks: z.array(TrackIdSchema),
+  /** Sorted by time; a snap target for the timeline (docs/TIMELINE.md §6, §10). */
+  markers: z.array(MarkerSchema),
 });
 export type Sequence = z.infer<typeof SequenceSchema>;
 

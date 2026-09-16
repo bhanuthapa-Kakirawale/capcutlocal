@@ -5,7 +5,7 @@ import { SequenceFormatSchema, SequenceSchema } from './sequence';
 
 /*
  * The project document (docs/PROJECT-MODEL.md §3) and the file envelope it is saved
- * inside (§5.1). This is schema v1: the whole of what Phase 2–4 need.
+ * inside (§5.1).
  */
 
 export const ProjectSettingsSchema = z.strictObject({
@@ -27,7 +27,8 @@ export const ProjectSchema = z.strictObject({
 export type Project = z.infer<typeof ProjectSchema>;
 
 export const PROJECT_FILE_FORMAT = 'kriti.project';
-export const CURRENT_SCHEMA_VERSION = 1;
+/** v2 (P4) added `Clip.enabled` and `Sequence.markers` — see the migration in serialization.ts. */
+export const CURRENT_SCHEMA_VERSION = 2;
 
 /** The on-disk `.kriti` file shape at the current schema version (docs/PROJECT-MODEL.md §5.1). */
 export const ProjectFileSchema = z.strictObject({

@@ -1,5 +1,6 @@
 export * from './asset';
 export * from './clip';
+export * from './marker';
 export * from './media';
 export * from './project';
 export * from './sequence';

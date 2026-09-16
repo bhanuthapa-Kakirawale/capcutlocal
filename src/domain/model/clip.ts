@@ -3,9 +3,9 @@ import { AssetIdSchema, ClipIdSchema, LinkIdSchema } from '../ids';
 import { FlicksSchema } from '../time';
 
 /*
- * Clips (docs/TIMELINE.md §3.1). This is the schema-v1 baseline: transform, opacity and
- * effects (P7/P9), text clips (P7), and the `enabled` skip flag (P4) are not implemented
- * yet and join via a migration in the phase that adds the operations to use them.
+ * Clips (docs/TIMELINE.md §3.1). Schema v2 (P4): adds `enabled`. Transform, opacity and
+ * effects (P7/P9) and text clips (P7) are not implemented yet and join via a migration
+ * in the phase that adds the operations to use them.
  */
 
 const ClipBaseShape = {
@@ -15,6 +15,8 @@ const ClipBaseShape = {
   sourceIn: FlicksSchema,
   /** Clips sharing a linkId are selected, moved, split and deleted together (A/V sync). */
   linkId: LinkIdSchema.nullable(),
+  /** A disabled clip is skipped by render but stays in place, for A/B comparisons. */
+  enabled: z.boolean(),
 };
 
 export const VideoClipSchema = z.strictObject({

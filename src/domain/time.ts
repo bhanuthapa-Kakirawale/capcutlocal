@@ -82,6 +82,15 @@ export function quantize(time: Flicks, rate: Rational): Flicks {
 }
 
 /**
+ * Rounds `value` to the NEAREST multiple of `frameDuration` (unlike `quantize`, which
+ * floors). Used to align an edit delta — a drag distance, not an absolute timecode — to
+ * the frame grid before an op applies it (docs/TIMELINE.md §1, §6).
+ */
+export function roundToFrame(value: number, frameDuration: number): Flicks {
+  return flicks(Math.round(value / frameDuration) * frameDuration);
+}
+
+/**
  * Non-drop-frame `HH:MM:SS:FF` timecode at `rate`. `time` is rounded to the nearest
  * frame first, so it need not already be frame-aligned.
  */

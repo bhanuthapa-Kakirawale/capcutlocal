@@ -1,5 +1,8 @@
+import type { AssetId } from '../domain/ids';
+import type { Asset, Track } from '../domain/model';
 import { addAssets } from '../domain/ops/media';
-import type { Asset } from '../domain/model';
+import { insertClips, type InsertClipsArgs } from '../domain/ops/clips';
+import { flicks } from '../domain/time';
 import { mediaGeneratePoster, mediaImport } from '../ipc/commands';
 import { describeIpcError } from '../ipc/invoke';
 import { useProjectStore } from '../state/projectStore';
@@ -70,4 +73,71 @@ async function generatePosterFor(asset: Asset): Promise<void> {
   } else {
     logger.warn(`poster generation failed for ${asset.name}: ${describeIpcError(result.error)}`);
   }
+}
+
+function trackEndFlicks(track: Track | undefined): number {
+  if (!track) return 0;
+  const last = track.clips[track.clips.length - 1];
+  return last ? last.start + last.duration : 0;
+}
+
+/**
+ * Appends an asset to the end of the active sequence's first video and/or audio track
+ * (whichever apply), linking the pair when a video asset has an audio stream (§3.3).
+ * The one way to get media from the browser onto the timeline in this phase — dragging
+ * a clip mid-timeline is `moveClips`, exercised once it's already placed.
+ */
+export function addAssetToTimeline(assetId: AssetId): void {
+  const store = useProjectStore.getState();
+  const project = store.history.present;
+  const sequence = project.sequences[project.activeSequenceId];
+  const asset = project.assets[assetId];
+  if (!sequence || !asset) return;
+
+  const videoTrackId = sequence.videoTracks[0];
+  const audioTrackId = sequence.audioTracks[0];
+  const hasAudioStream = asset.kind === 'video' && asset.info.audio.length > 0;
+  const wantsVideo =
+    (asset.kind === 'video' || asset.kind === 'image') && videoTrackId !== undefined;
+  const wantsAudio = (asset.kind === 'audio' || hasAudioStream) && audioTrackId !== undefined;
+  if (!wantsVideo && !wantsAudio) return;
+
+  const at = Math.max(
+    wantsVideo ? trackEndFlicks(sequence.tracks[videoTrackId]) : 0,
+    wantsAudio ? trackEndFlicks(sequence.tracks[audioTrackId]) : 0,
+  );
+
+  const placements: InsertClipsArgs['placements'] = [];
+  if (wantsVideo) {
+    placements.push({
+      type: 'video',
+      trackId: videoTrackId,
+      assetId,
+      sourceIn: flicks(0),
+      duration: asset.info.durationFlicks,
+    });
+  }
+  if (wantsAudio) {
+    placements.push({
+      type: 'audio',
+      trackId: audioTrackId,
+      assetId,
+      sourceIn: flicks(0),
+      duration: asset.info.durationFlicks,
+      streamIndex: asset.kind === 'audio' ? 0 : (asset.info.audio[0]?.streamIndex ?? 0),
+      gainDb: 0,
+    });
+  }
+
+  store.dispatch(
+    insertClips,
+    {
+      sequenceId: sequence.id,
+      at: flicks(at),
+      mode: 'overwrite',
+      link: placements.length > 1,
+      placements,
+    },
+    'Add to timeline',
+  );
 }

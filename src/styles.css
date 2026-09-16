@@ -7,6 +7,7 @@
   --color-fg: #e7e9ee;
   --color-fg-muted: #9aa2b1;
   --color-danger: #ff6b6b;
+  --color-accent: #4c9eff;
 
   /* Devanagari fallback keeps Hindi UI text legible on systems without it in Segoe UI. */
   --font-sans:

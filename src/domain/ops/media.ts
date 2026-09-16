@@ -1,9 +1,9 @@
-import { produce } from 'immer';
 import { z } from 'zod';
 import { err, ok, type Result } from '../../lib/result';
 import type { EditContext } from '../editContext';
 import type { EditError } from '../editError';
 import { newAssetId } from '../ids';
+import { produce } from '../immer';
 import { FingerprintSchema } from '../model/asset';
 import { MediaInfoSchema } from '../model/media';
 import type { Project } from '../model';

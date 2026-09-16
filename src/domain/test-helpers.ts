@@ -4,11 +4,12 @@ import {
   newAssetId,
   newClipId,
   newLinkId,
+  newMarkerId,
   newProjectId,
   newSequenceId,
   newTrackId,
 } from './ids';
-import type { Asset, AudioClip, MediaInfo, Project, VideoClip } from './model';
+import type { Asset, AudioClip, Marker, MediaInfo, Project, VideoClip } from './model';
 import { SEQUENCE_FORMAT_PRESETS } from './model/sequence';
 import type { Flicks } from './time';
 import { flicks, flicksPerFrame } from './time';
@@ -92,6 +93,7 @@ export function makeValidProject(ids: IdGenerator = createCounterIdGenerator()):
     duration: clipDuration,
     sourceIn: flicks(0),
     linkId,
+    enabled: true,
     type: 'video',
     assetId: asset.id,
   };
@@ -101,6 +103,7 @@ export function makeValidProject(ids: IdGenerator = createCounterIdGenerator()):
     duration: clipDuration,
     sourceIn: flicks(0),
     linkId,
+    enabled: true,
     type: 'audio',
     assetId: asset.id,
     streamIndex: 0,
@@ -142,6 +145,7 @@ export function makeValidProject(ids: IdGenerator = createCounterIdGenerator()):
         },
         videoTracks: [videoTrackId],
         audioTracks: [audioTrackId],
+        markers: [],
       },
     },
     sequenceOrder: [sequenceId],
@@ -167,6 +171,7 @@ export function makeProjectWithClips(ids: IdGenerator, clipCount: number): Proje
       duration: flicks(clipDuration),
       sourceIn: flicks(cursor),
       linkId: null,
+      enabled: true,
       type: 'video',
       assetId: asset.id,
     });
@@ -196,9 +201,18 @@ export function makeProjectWithClips(ids: IdGenerator, clipCount: number): Proje
         },
         videoTracks: [videoTrackId],
         audioTracks: [],
+        markers: [],
       },
     },
     sequenceOrder: [sequenceId],
     activeSequenceId: sequenceId,
   };
+}
+
+export function makeMarker(
+  ids: IdGenerator,
+  time: Flicks,
+  overrides: Partial<Marker> = {},
+): Marker {
+  return { id: newMarkerId(ids), time, label: 'Marker', color: 'blue', ...overrides };
 }

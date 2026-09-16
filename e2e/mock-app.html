@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kriti (mock IPC)</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Runs first: installs the mock Tauri backend before the app's own script tag below
+         calls any IPC command. Module scripts execute in document order. -->
+    <script type="module" src="/e2e/mock-ipc.ts"></script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

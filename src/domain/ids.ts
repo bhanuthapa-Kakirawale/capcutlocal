@@ -24,6 +24,9 @@ export type ClipId = z.infer<typeof ClipIdSchema>;
 export const LinkIdSchema = z.string().min(1).brand<'LinkId'>();
 export type LinkId = z.infer<typeof LinkIdSchema>;
 
+export const MarkerIdSchema = z.string().min(1).brand<'MarkerId'>();
+export type MarkerId = z.infer<typeof MarkerIdSchema>;
+
 /**
  * Mints raw id strings. Production uses `crypto.randomUUID()`; tests use a deterministic
  * counter so fixtures and snapshots are stable (docs/PROJECT-MODEL.md §2).
@@ -61,4 +64,7 @@ export function newClipId(ids: IdGenerator): ClipId {
 }
 export function newLinkId(ids: IdGenerator): LinkId {
   return ids.next() as LinkId;
+}
+export function newMarkerId(ids: IdGenerator): MarkerId {
+  return ids.next() as MarkerId;
 }

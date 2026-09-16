@@ -2,6 +2,7 @@ import fc from 'fast-check';
 import { produce } from 'immer';
 import { describe, expect, it } from 'vitest';
 import { createCounterIdGenerator } from './ids';
+import { CURRENT_SCHEMA_VERSION } from './model';
 import { describeLoadError, loadProjectFromText, serializeProject } from './serialization';
 import { makeProjectWithClips, makeValidProject } from './test-helpers';
 
@@ -79,8 +80,37 @@ describe('loadProjectFromText error handling', () => {
     expect(!result.ok && result.error).toEqual({
       kind: 'unsupported-version',
       fileVersion: 999,
-      supportedVersion: 1,
+      supportedVersion: CURRENT_SCHEMA_VERSION,
     });
+  });
+
+  it('migrates a v1 project file (no enabled/markers) to the current schema', () => {
+    const v1Project = JSON.parse(JSON.stringify(makeValidProject())) as {
+      sequences: Record<string, { tracks: Record<string, { clips: { enabled?: boolean }[] }> }>;
+    };
+    // Simulate a real v1 file: strip the fields v2 added.
+    const sequence = Object.values(v1Project.sequences)[0];
+    for (const track of Object.values(sequence?.tracks ?? {})) {
+      for (const clip of track.clips) delete clip.enabled;
+    }
+    delete (sequence as { markers?: unknown[] }).markers;
+
+    const result = loadProjectFromText(
+      JSON.stringify({
+        format: 'kriti.project',
+        schemaVersion: 1,
+        savedAt: new Date().toISOString(),
+        savedBy: 'Kriti 0.1.0',
+        project: v1Project,
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const loadedSequence = Object.values(result.value.sequences)[0];
+    expect(loadedSequence?.markers).toEqual([]);
+    const loadedTrack = Object.values(loadedSequence?.tracks ?? {})[0];
+    expect(loadedTrack?.clips[0]?.enabled).toBe(true);
   });
 
   it('rejects a project payload that does not match the schema', () => {

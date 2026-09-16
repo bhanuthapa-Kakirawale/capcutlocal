@@ -1,6 +1,11 @@
 import { useState, type ReactNode } from 'react';
 import { renameProject } from '../domain/ops/project';
-import { selectIsDirty, useProjectStore } from '../state/projectStore';
+import {
+  selectCanRedo,
+  selectCanUndo,
+  selectIsDirty,
+  useProjectStore,
+} from '../state/projectStore';
 import { useSessionStore } from '../state/sessionStore';
 import {
   newProject,
@@ -17,6 +22,8 @@ const NAME_INPUT_ID = 'project-name-input';
 export function ProjectToolbar() {
   const projectName = useProjectStore((s) => s.history.present.name);
   const isDirty = useProjectStore(selectIsDirty);
+  const canUndo = useProjectStore(selectCanUndo);
+  const canRedo = useProjectStore(selectCanRedo);
   const projectPath = useSessionStore((s) => s.projectPath);
   const { recents, refresh } = useRecentProjects();
   const [nameDraft, setNameDraft] = useState(projectName);
@@ -79,6 +86,24 @@ export function ProjectToolbar() {
         </ToolbarButton>
         <ToolbarButton disabled={busy} onClick={() => void run(saveProjectAs)}>
           Save As…
+        </ToolbarButton>
+      </div>
+      <div className="flex gap-1.5 text-sm">
+        <ToolbarButton
+          disabled={!canUndo}
+          onClick={() => {
+            useProjectStore.getState().undo();
+          }}
+        >
+          Undo
+        </ToolbarButton>
+        <ToolbarButton
+          disabled={!canRedo}
+          onClick={() => {
+            useProjectStore.getState().redo();
+          }}
+        >
+          Redo
         </ToolbarButton>
       </div>
       {recents.length > 0 && (

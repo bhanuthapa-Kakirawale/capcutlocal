@@ -1,10 +1,16 @@
 import { useEffect } from 'react';
 import { MediaBrowser } from '../features/media-browser/MediaBrowser';
+import { Timeline } from '../features/timeline/Timeline';
+import { useProjectStore } from '../state/projectStore';
 import { ProjectToolbar } from './ProjectToolbar';
 import { RecoveryBanner } from './RecoveryBanner';
 import { startAutosaveScheduler } from './autosaveScheduler';
 import { bootstrapSession } from './projectActions';
 import { useAppInfo } from './useAppInfo';
+
+function isTypingTarget(target: EventTarget | null): boolean {
+  return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
+}
 
 export function App() {
   const state = useAppInfo();
@@ -14,11 +20,30 @@ export function App() {
     return startAutosaveScheduler(window);
   }, []);
 
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent): void {
+      if (isTypingTarget(e.target) || !(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z')
+        return;
+      e.preventDefault();
+      if (e.shiftKey) useProjectStore.getState().redo();
+      else useProjectStore.getState().undo();
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, []);
+
   return (
     <div className="flex h-full flex-col">
       <ProjectToolbar />
       <RecoveryBanner />
-      <MediaBrowser />
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="h-56 shrink-0 overflow-hidden">
+          <MediaBrowser />
+        </div>
+        <Timeline />
+      </div>
       {state.status === 'loading' && (
         <p className="border-t border-edge bg-surface-1 px-4 py-1 text-[11px] text-fg-muted">
           Connecting to the application core…

@@ -56,11 +56,54 @@ const EnvelopeShellSchema = z.looseObject({
 });
 
 type Migration = { fromVersion: number; migrate: (project: unknown) => unknown };
+
 /**
- * Empty at schema v1: there is nothing older to migrate from yet. A future schema bump
- * adds its migration here, keyed by the version it migrates FROM (docs/PROJECT-MODEL.md §5.4).
+ * v1 → v2 (P4, docs/TIMELINE.md §4 & §10): adds `enabled: true` to every clip (P4's skip
+ * flag) and `markers: []` to every sequence. Written defensively over `unknown` — a
+ * shape this doesn't recognize is left alone, and `ProjectSchema.safeParse` reports the
+ * resulting mismatch as a normal 'schema' load error rather than this throwing.
  */
-const MIGRATIONS: readonly Migration[] = [];
+function migrateV1ToV2(project: unknown): unknown {
+  if (typeof project !== 'object' || project === null) return project;
+  const asRecord = project as Record<string, unknown>;
+  if (typeof asRecord.sequences !== 'object' || asRecord.sequences === null) return project;
+
+  const sequences: Record<string, unknown> = {};
+  for (const [sequenceId, sequence] of Object.entries(
+    asRecord.sequences as Record<string, unknown>,
+  )) {
+    sequences[sequenceId] = migrateSequenceV1ToV2(sequence);
+  }
+  return { ...asRecord, sequences };
+}
+
+function migrateSequenceV1ToV2(sequence: unknown): unknown {
+  if (typeof sequence !== 'object' || sequence === null) return sequence;
+  const asRecord = sequence as Record<string, unknown>;
+  if (typeof asRecord.tracks !== 'object' || asRecord.tracks === null) {
+    return { ...asRecord, markers: [] };
+  }
+
+  const tracks: Record<string, unknown> = {};
+  for (const [trackId, track] of Object.entries(asRecord.tracks as Record<string, unknown>)) {
+    tracks[trackId] = migrateTrackV1ToV2(track);
+  }
+  return { ...asRecord, tracks, markers: [] };
+}
+
+function migrateTrackV1ToV2(track: unknown): unknown {
+  if (typeof track !== 'object' || track === null) return track;
+  const asRecord = track as Record<string, unknown>;
+  if (!Array.isArray(asRecord.clips)) return track;
+
+  const clips = asRecord.clips.map((clip: unknown) =>
+    typeof clip === 'object' && clip !== null ? { ...clip, enabled: true } : clip,
+  );
+  return { ...asRecord, clips };
+}
+
+/** Keyed by the version each migration migrates FROM (docs/PROJECT-MODEL.md §5.4). */
+const MIGRATIONS: readonly Migration[] = [{ fromVersion: 1, migrate: migrateV1ToV2 }];
 
 /** Parses, migrates, validates and invariant-checks project file text. Never partially loads. */
 export function loadProjectFromText(text: string): Result<Project, LoadError> {

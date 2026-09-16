@@ -1,3 +1,4 @@
+import { addAssetToTimeline } from '../../app/mediaActions';
 import type { Asset } from '../../domain/model';
 import { formatDuration } from './formatDuration';
 
@@ -9,7 +10,11 @@ const KIND_LABEL: Record<Asset['kind'], string> = {
 
 export function MediaCard({ asset, posterUrl }: { asset: Asset; posterUrl: string | undefined }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded border border-edge bg-surface-1">
+    <div
+      data-testid="media-card"
+      data-asset-name={asset.name}
+      className="flex flex-col overflow-hidden rounded border border-edge bg-surface-1"
+    >
       <div className="flex aspect-video items-center justify-center bg-surface-0">
         {posterUrl ? (
           <img src={posterUrl} alt="" className="h-full w-full object-cover" />
@@ -27,6 +32,15 @@ export function MediaCard({ asset, posterUrl }: { asset: Asset; posterUrl: strin
           {asset.info.video &&
             ` · ${asset.info.video.width.toString()}×${asset.info.video.height.toString()}`}
         </span>
+        <button
+          type="button"
+          onClick={() => {
+            addAssetToTimeline(asset.id);
+          }}
+          className="mt-1 rounded border border-edge px-1.5 py-0.5 text-[11px] hover:bg-surface-0"
+        >
+          Add to timeline
+        </button>
       </div>
     </div>
   );
